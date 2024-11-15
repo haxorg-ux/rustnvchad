@@ -44,7 +44,31 @@ return {
   {
     "mfussenegger/nvim-dap",
     config = function()
-      local dap, dapui = require "dap", require "dapui"
+      local dap = require("dap")
+      -- Configurar codelldb como adaptador para Rust
+      dap.adapters.codelldb = {
+        type = "server",
+        port = "${port}", -- DAP asignará un puerto aleatorio
+        executable = {
+          command = vim.fn.stdpath "data" .. "/mason/packages/codelldb/extension/adapter/codelldb", -- Cambia esta ruta si es necesario
+          args = { "--port", "${port}" },
+        },
+      }
+
+      dap.configurations.rust = {
+        {
+          name = "Launch",
+          type = "codelldb",
+          request = "launch",
+          program = function()
+            return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/target/debug/", "file")
+          end,
+          cwd = "${workspaceFolder}",
+          stopOnEntry = false,
+          args = {},
+        },
+      }
+      local dapui =  require "dapui"
       dap.listeners.before.attach.dapui_config = function()
         dapui.open()
       end
@@ -84,12 +108,16 @@ return {
   },
 
   {
-  	"nvim-treesitter/nvim-treesitter",
-  	opts = {
-  		ensure_installed = {
-  			"vim", "lua", "vimdoc",
-       "html", "css", "rust"
-  		},
-  	},
+    "nvim-treesitter/nvim-treesitter",
+    opts = {
+      ensure_installed = {
+        "vim",
+        "lua",
+        "vimdoc",
+        "html",
+        "css",
+        "rust",
+      },
+    },
   },
 }
