@@ -26,3 +26,8 @@ map("n", "<Leader>dr", "<cmd>lua require'dap'.run_last()<CR>", { desc = "Debugge
 
 -- rustaceanvim
 map("n", "<Leader>dt", "<cmd>lua vim.cmd('RustLsp testables')<CR>", { desc = "Debugger testables" })
+
+map("t", "<ESC>", function()
+    local win = vim.api.nvim_get_current_win()
+    vim.api.nvim_win_close(win, true)
+end, { desc = "terminal close term in terminal mode" })
