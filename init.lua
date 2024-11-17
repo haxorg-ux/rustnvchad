@@ -35,3 +35,12 @@ require "nvchad.autocmds"
 vim.schedule(function()
   require "mappings"
 end)
+
+vim.cmd([[
+  highlight VertSplit guibg=#FF0000 guifg=#FF0000 ctermbg=160 ctermfg=160
+]])
+vim.g.nvim_tree_adaptive_size = false
+
+
+
+

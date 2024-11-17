@@ -11,13 +11,8 @@ return {
     config = function()
       require("mason-tool-installer").setup {
 
-        -- start
         ensure_installed = {
 
-          -- you can pin a tool to a particular version
-          -- { 'golangci-lint', version = 'v1.47.0' },
-
-          -- you can turn off/on auto_update per tool
           { "bash-language-server", auto_update = true },
 
           -- 'lua-language-server',
@@ -48,25 +43,17 @@ return {
           "rust-analyzer",
           "codelldb",
           "typescript-language-server",
+          "go-debug-adapter",
+          "eslint-lsp",
+          "tailwindcss-language-server",
+          "typescript-language-server",
+          "clangd",
+          "clang-format",
         },
 
         auto_update = false,
 
-        -- Default: true
         run_on_start = true,
-
-        -- Default: 0
-        -- start_delay = 3000, -- 3 second delay
-
-        -- Default: nil
-        -- debounce_hours = 5, -- at least 5 hours between attempts to install/update
-
-        -- doing lazy loading.
-        -- integrations = {
-        --   -- ["mason-lspconfig"] = true,
-        --   -- ['mason-null-ls'] = true,
-        --   -- ['mason-nvim-dap'] = true,
-        -- },
       }
     end,
   },
@@ -75,6 +62,15 @@ return {
   {
     "neovim/nvim-lspconfig",
     config = function()
+      require "nvchad.configs.lspconfig"
+      require "configs.lspconfig"
+    end,
+  },
+
+  {
+    "neovim/nvim-lspconfig",
+    config = function()
+      require "nvchad.configs.lspconfig"
       require "configs.lspconfig"
     end,
   },
@@ -116,7 +112,7 @@ return {
         type = "server",
         port = "${port}", -- DAP asignará un puerto aleatorio
         executable = {
-          command = vim.fn.stdpath "data" .. "/mason/packages/codelldb/extension/adapter/codelldb", -- Cambia esta ruta si es necesario
+          command = vim.fn.stdpath "data" .. "/mason/packages/codelldb/extension/adapter/codelldb",
           args = { "--port", "${port}" },
         },
       }
@@ -134,6 +130,7 @@ return {
           args = {},
         },
       }
+
       local dapui = require "dapui"
       dap.listeners.before.attach.dapui_config = function()
         dapui.open()
@@ -151,9 +148,72 @@ return {
   },
   {
     "rcarriga/nvim-dap-ui",
+    dofile(vim.g.base46_cache .. "dap"),
     dependencies = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" },
     config = function()
       require("dapui").setup()
+    end,
+  },
+  {
+    "leoluz/nvim-dap-go",
+    ft = "go",
+    dependencies = "mfussenegger/nvim-dap",
+    config = function()
+      local dap = require "dap"
+      require("dap-go").setup {
+        dap.adapters.go == {
+          type = "executable",
+          command = "node",
+          args = { vim.fn.stdpath "data" .. "mason/bin/go-debug-adapter" },
+        },
+        dap.configurations.go == {
+          {
+            type = "go",
+            name = "Debug",
+            request = "launch",
+            showLog = false,
+            program = "${file}",
+            dlvToolPath = vim.fn.exepath "dlv",
+            initialize_timeout_sec = 30, -- Aumenta el tiempo de espera a 30 segundos
+            port = 38697, -- Especifica un puerto fijo
+          },
+        },
+      }
+
+      local dapui = require "dapui"
+      dap.listeners.before.attach.dapui_config = function()
+        dapui.open()
+      end
+      dap.listeners.before.launch.dapui_config = function()
+        dapui.open()
+      end
+      dap.listeners.before.event_terminated.dapui_config = function()
+        dapui.close()
+      end
+      dap.listeners.before.event_exited.dapui_config = function()
+        dapui.close()
+      end
+    end,
+  },
+  {
+    "olexsmir/gopher.nvim",
+    ft = "go",
+    config = function(_, opts)
+      require("gopher").setup(opts)
+    end,
+    build = function()
+      vim.cmd [[silent! GoInstallDeps]]
+    end,
+  },
+  {
+    "mfussenegger/nvim-dap-python",
+    ft = "python",
+    dependencies = {
+      "mfussenegger/nvim-dap",
+      "rcarriga/nvim-dap-ui",
+    },
+    config = function()
+      require "configs.dap-python"
     end,
   },
   {
@@ -184,5 +244,21 @@ return {
         indent = { enable = true },
       }
     end,
+  },
+  {
+    "windwp/nvim-ts-autotag",
+    ft = {
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact",
+    },
+    config = function()
+      require("nvim-ts-autotag").setup()
+    end,
+  },
+  {
+    "christoomey/vim-tmux-navigator",
+    lazy = false,
   },
 }
