@@ -4,11 +4,12 @@ local options = {
     -- css = { "prettier" },
     -- html = { "prettier" },
     python = { "isort", "black" },
-    go = { "gofumpt", "golines" },
+    go = { "gofumpt", "goimports", "golines" },
     javascript = { "prettier" },
     javascriptreact = { "prettier" },
     typescript = { "prettier" },
     typescriptreact = { "prettier" },
+    json = { "jq" },
   },
 
   format_on_save = {

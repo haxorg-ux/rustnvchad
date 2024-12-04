@@ -16,10 +16,10 @@ map("n", "<Leader>dk", "<cmd>lua require'dap'.step_out()<CR>", { desc = "Debugge
 map("n", "<Leader>dc", "<cmd>lua require'dap'.continue()<CR>", { desc = "Debugger continue" })
 map("n", "<Leader>db", "<cmd>lua require'dap'.toggle_breakpoint()<CR>", { desc = "Debugger toggle breakpoint" })
 map(
-	"n",
-	"<Leader>dd",
-	"<cmd>lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>",
-	{ desc = "Debugger set conditional breakpoint" }
+  "n",
+  "<Leader>dd",
+  "<cmd>lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>",
+  { desc = "Debugger set conditional breakpoint" }
 )
 map("n", "<Leader>de", "<cmd>lua require'dap'.terminate()<CR>", { desc = "Debugger reset" })
 map("n", "<Leader>dr", "<cmd>lua require'dap'.run_last()<CR>", { desc = "Debugger run last" })
@@ -28,6 +28,24 @@ map("n", "<Leader>dr", "<cmd>lua require'dap'.run_last()<CR>", { desc = "Debugge
 map("n", "<Leader>dt", "<cmd>lua vim.cmd('RustLsp testables')<CR>", { desc = "Debugger testables" })
 
 map("t", "<ESC>", function()
-    local win = vim.api.nvim_get_current_win()
-    vim.api.nvim_win_close(win, true)
+  local win = vim.api.nvim_get_current_win()
+  vim.api.nvim_win_close(win, true)
 end, { desc = "terminal close term in terminal mode" })
+
+vim.keymap.set("n", "<leader>fc", function()
+  vim.bo.formatoptions = vim.bo.formatoptions:gsub("[cro]", "")
+  print("formatoptions updated: " .. vim.bo.formatoptions)
+end, { desc = "Fix formatoptions" })
+
+-- Keyboard users
+vim.keymap.set("n", "<C-t>", function()
+  require("menu").open("default")
+end, {})
+
+-- mouse users + nvimtree users!
+vim.keymap.set("n", "<RightMouse>", function()
+  vim.cmd.exec '"normal! \\<RightMouse>"'
+
+  local options = vim.bo.ft == "NvimTree" and "nvimtree" or "default"
+  require("menu").open(options, { mouse = true })
+end, {})

@@ -23,17 +23,11 @@ return {
           -- 'editorconfig-checker',
           "gofumpt",
           "golines",
+          "goimports",
           -- 'gomodifytags',
           "gotests",
-          -- 'impl',
-          -- 'json-to-struct',
-          -- 'luacheck',
-          -- 'misspell',
-          -- 'revive',
-          -- 'shellcheck',
-          -- 'shfmt',
-          -- 'staticcheck',
-          -- 'vint',
+          "jq",
+          "json-lsp",
           --
           "basedpyright",
           "isort",
@@ -43,7 +37,7 @@ return {
           "rust-analyzer",
           "codelldb",
           "typescript-language-server",
-          "go-debug-adapter",
+          -- "go-debug-adapter",
           "eslint-lsp",
           "tailwindcss-language-server",
           "typescript-language-server",
@@ -155,57 +149,6 @@ return {
     end,
   },
   {
-    "leoluz/nvim-dap-go",
-    ft = "go",
-    dependencies = "mfussenegger/nvim-dap",
-    config = function()
-      local dap = require "dap"
-      require("dap-go").setup {
-        dap.adapters.go == {
-          type = "executable",
-          command = "node",
-          args = { vim.fn.stdpath "data" .. "mason/bin/go-debug-adapter" },
-        },
-        dap.configurations.go == {
-          {
-            type = "go",
-            name = "Debug",
-            request = "launch",
-            showLog = false,
-            program = "${file}",
-            dlvToolPath = vim.fn.exepath "dlv",
-            initialize_timeout_sec = 30, -- Aumenta el tiempo de espera a 30 segundos
-            port = 38697, -- Especifica un puerto fijo
-          },
-        },
-      }
-
-      local dapui = require "dapui"
-      dap.listeners.before.attach.dapui_config = function()
-        dapui.open()
-      end
-      dap.listeners.before.launch.dapui_config = function()
-        dapui.open()
-      end
-      dap.listeners.before.event_terminated.dapui_config = function()
-        dapui.close()
-      end
-      dap.listeners.before.event_exited.dapui_config = function()
-        dapui.close()
-      end
-    end,
-  },
-  {
-    "olexsmir/gopher.nvim",
-    ft = "go",
-    config = function(_, opts)
-      require("gopher").setup(opts)
-    end,
-    build = function()
-      vim.cmd [[silent! GoInstallDeps]]
-    end,
-  },
-  {
     "mfussenegger/nvim-dap-python",
     ft = "python",
     dependencies = {
@@ -232,7 +175,45 @@ return {
       }
     end,
   },
+  {
+    "leoluz/nvim-dap-go",
+    dependencies = {
+      "mfussenegger/nvim-dap",
+      "rcarriga/nvim-dap-ui",
+      "nvim-neotest/nvim-nio",
+    },
+    config = function()
+      require("dap-go").setup()
+      local dap, dapui = require "dap", require "dapui"
 
+      require("dapui").setup()
+      require("dap-go").setup {
+        dap_configurations = {
+          {
+            type = "go",
+            name = "Debug (Build Flags & Arguments)",
+            request = "launch",
+            program = "${file}",
+            args = require("dap-go").get_arguments,
+            buildFlags = require("dap-go").get_build_flags,
+          },
+        },
+      }
+
+      dap.listeners.before.attach.dapui_config = function()
+        dapui.open()
+      end
+      dap.listeners.before.launch.dapui_config = function()
+        dapui.open()
+      end
+      dap.listeners.before.event_terminated.dapui_config = function()
+        dapui.close()
+      end
+      dap.listeners.before.event_exited.dapui_config = function()
+        dapui.close()
+      end
+    end,
+  },
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",

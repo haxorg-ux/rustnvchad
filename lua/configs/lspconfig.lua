@@ -5,7 +5,7 @@ local lspconfig = require "lspconfig"
 -- local on_init = require("nvchad.configs.lspconfig").on_init
 
 -- EXAMPLE
-local servers = { "html", "cssls", "basedpyright", "gopls", "ts_ls" }
+local servers = { "html", "cssls", "basedpyright", "gopls", "ts_ls", "jsonls" }
 local nvlsp = require "nvchad.configs.lspconfig"
 
 -- lsps with default config
@@ -38,6 +38,10 @@ lspconfig.gopls.setup {
       gofumpt = true,
     },
   },
+}
+
+lspconfig.jsonls.setup {
+  capabilities = nvlsp.capabilities,
 }
 
 -- configuring single server, example: typescript
